@@ -99,6 +99,8 @@ const REPO_URL = 'https://github.com/suld2495/expo-design-system-boilerplate';
 const ARCHIVE_URL = `${REPO_URL}/archive/refs/heads/main.zip`;
 
 async function install() {
+  let success = false;
+
   try {
     // 1. ZIP 파일 다운로드
     console.log('📦 보일러플레이트 다운로드 중...');
@@ -158,6 +160,7 @@ async function install() {
     console.log('  pnpm add -D jest @testing-library/react-native @testing-library/jest-native jest-expo');
     console.log('  pnpm start\n');
     
+    success = true;
   } catch (error) {
     console.error('❌ 설치 실패:', error.message);
     
@@ -170,8 +173,13 @@ async function install() {
         fs.unlinkSync('temp.zip');
       }
     } catch {}
-    
-    process.exit(1);
+  } finally {
+    // 8. setup.js 자동 삭제
+    console.log('🗑️  setup.js 삭제 중...');
+    fs.unlinkSync(__filename); // 자기 자신을 삭제
+    console.log('  ✓ setup.js 삭제 완료\n');
+
+    process.exit(success ? 0 : 1);
   }
 }
 
