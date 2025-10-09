@@ -1,4 +1,4 @@
-// setup.js
+// setup.js - 파일 잠금 문제 해결
 const https = require('https');
 const http = require('http');
 const fs = require('fs');
@@ -36,10 +36,9 @@ function copyFolderSync(src, dest) {
   }
 }
 
-// Node.js로 파일 다운로드
+// Node.js로 파일 다운로드 (파일 핸들 제대로 닫기)
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
     const protocol = url.startsWith('https') ? https : http;
     
     const request = protocol.get(url, (response) => {
@@ -54,21 +53,26 @@ function downloadFile(url, dest) {
         return;
       }
       
+      const file = fs.createWriteStream(dest);
+      
       response.pipe(file);
       
       file.on('finish', () => {
-        file.close();
-        resolve();
+        file.close(() => {
+          // 파일 핸들이 완전히 닫힌 후 resolve
+          setTimeout(resolve, 100); // Windows 파일 시스템을 위한 작은 지연
+        });
+      });
+      
+      file.on('error', (err) => {
+        file.close(() => {
+          fs.unlink(dest, () => {});
+        });
+        reject(err);
       });
     });
     
     request.on('error', (err) => {
-      fs.unlink(dest, () => {});
-      reject(err);
-    });
-    
-    file.on('error', (err) => {
-      fs.unlink(dest, () => {});
       reject(err);
     });
   });
@@ -91,7 +95,7 @@ function extractZip(zipPath) {
   }
 }
 
-const REPO_URL = 'https://github.com/suld2495/expo-design-system-boilerplate';
+const REPO_URL = 'https://github.com/ohDaddyPlease/expo-design-system-boilerplate';
 const ARCHIVE_URL = `${REPO_URL}/archive/refs/heads/main.zip`;
 
 async function install() {
@@ -101,17 +105,20 @@ async function install() {
     await downloadFile(ARCHIVE_URL, 'temp.zip');
     console.log('  ✓ 다운로드 완료');
     
-    // 2. ZIP 압축 해제
+    // 2. 다운로드 후 조금 대기 (Windows 파일 시스템)
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // 3. ZIP 압축 해제
     console.log('📂 압축 해제 중...');
     extractZip('temp.zip');
     console.log('  ✓ 압축 해제 완료');
     
-    // 3. 폴더명
+    // 4. 폴더명
     const tempDir = 'expo-design-system-boilerplate-main';
     
     console.log('📋 파일 복사 중...');
     
-    // 4. 폴더 복사
+    // 5. 폴더 복사
     const folders = ['app', 'components', 'hooks', 'lib', 'constants', 'types'];
     folders.forEach(folder => {
       const src = path.join(tempDir, 'apps', 'mobile', folder);
@@ -122,7 +129,7 @@ async function install() {
       }
     });
     
-    // 5. 파일 복사
+    // 6. 파일 복사
     const files = ['jest.config.js', 'jest.setup.js'];
     files.forEach(file => {
       const src = path.join(tempDir, 'apps', 'mobile', file);
@@ -133,7 +140,7 @@ async function install() {
       }
     });
     
-    // 6. 임시 파일 정리
+    // 7. 임시 파일 정리
     console.log('🧹 정리 중...');
     fs.rmSync(tempDir, { recursive: true, force: true });
     fs.unlinkSync('temp.zip');
@@ -155,13 +162,6 @@ async function install() {
     
   } catch (error) {
     console.error('❌ 설치 실패:', error.message);
-    console.error('\n💡 문제 해결:');
-    
-    if (process.platform === 'win32') {
-      console.error('  Windows에서 압축 해제 실패 시:');
-      console.error('  1. PowerShell을 관리자 권한으로 실행');
-      console.error('  2. 또는 수동으로 압축 해제 후 폴더 복사\n');
-    }
     
     // 정리
     try {
