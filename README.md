@@ -42,47 +42,8 @@ pnpm add @tanstack/react-query axios
 pnpm add -D jest @testing-library/react-native
 ```
 
-### 방법2. setup.sh 스크립트 추가
+### 방법2. setup.js 사용
 ```bash
-#!/bin/bash
-# setup.sh - 기존 프로젝트에 디자인 시스템 추가
-
-echo "🎨 Expo 디자인 시스템 설치 중..."
-echo ""
-
-# apps/mobile 존재 확인
-if [ ! -d "apps/mobile" ]; then
-  echo "❌ apps/mobile 디렉토리가 없습니다"
-  echo "프로젝트 루트에서 실행해주세요"
-  exit 1
-fi
-
-# 보일러플레이트 다운로드
-echo "📦 보일러플레이트 다운로드 중..."
-curl -L https://github.com/username/expo-design-system-boilerplate/archive/main.tar.gz -o temp.tar.gz
-tar -xzf temp.tar.gz
-
-# 파일 복사
-echo "📋 파일 복사 중..."
-cp -r expo-design-system-boilerplate-main/apps/mobile/app apps/mobile/
-cp -r expo-design-system-boilerplate-main/apps/mobile/components apps/mobile/
-cp -r expo-design-system-boilerplate-main/apps/mobile/hooks apps/mobile/
-cp -r expo-design-system-boilerplate-main/apps/mobile/lib apps/mobile/
-cp -r expo-design-system-boilerplate-main/apps/mobile/constants apps/mobile/
-cp -r expo-design-system-boilerplate-main/apps/mobile/types apps/mobile/
-cp expo-design-system-boilerplate-main/apps/mobile/jest.config.js apps/mobile/
-cp expo-design-system-boilerplate-main/apps/mobile/jest.setup.js apps/mobile/
-
-# 정리
-rm -rf expo-design-system-boilerplate-main temp.tar.gz
-
-echo ""
-echo "✅ 설치 완료!"
-echo ""
-echo "📝 다음 단계:"
-echo "  cd apps/mobile"
-echo "  pnpm add @tanstack/react-query axios expo-router"
-echo "  pnpm add -D jest @testing-library/react-native"
-echo "  pnpm start"
-echo ""
+curl -fsSL https://raw.githubusercontent.com/username/expo-design-system-boilerplate/main/setup.js -o setup.js
+node setup.js
 ```
