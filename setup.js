@@ -95,7 +95,7 @@ function extractZip(zipPath) {
   }
 }
 
-const REPO_URL = 'https://github.com/ohDaddyPlease/expo-design-system-boilerplate';
+const REPO_URL = 'https://github.com/suld2495/expo-design-system-boilerplate';
 const ARCHIVE_URL = `${REPO_URL}/archive/refs/heads/main.zip`;
 
 async function install() {
@@ -154,9 +154,7 @@ async function install() {
       console.log('  cd apps/mobile');
     }
     
-    console.log('  pnpm add @tanstack/react-query axios expo-router');
-    console.log('  pnpm add react-native-safe-area-context react-native-screens');
-    console.log('  pnpm add expo-linking expo-constants expo-status-bar');
+    console.log('  pnpm add @tanstack/react-query axios');
     console.log('  pnpm add -D jest @testing-library/react-native @testing-library/jest-native jest-expo');
     console.log('  pnpm start\n');
     
